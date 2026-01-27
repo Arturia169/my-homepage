@@ -45,6 +45,17 @@
     .pill{display:inline-flex; align-items:center; gap:6px; padding:2px 8px; border-radius:999px; border:1px solid var(--chipBorder); background:rgba(11,18,32,.7)}
     .rightcol ul{padding-left:16px}
     .small{font-size:12px; color:var(--muted)}
+    .bookmarkBar{display:flex; gap:10px; margin-top:10px}
+    .bookmarkBar input{flex:1 1 auto; min-width:160px}
+    .bookmarkGrid{display:grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap:10px; margin-top:10px}
+    .bmItem{position:relative; border:1px solid var(--border); border-radius:14px; background:rgba(17,24,39,.55); padding:10px; cursor:pointer}
+    .bmItem:hover{background:rgba(17,24,39,.75)}
+    .bmRow{display:flex; gap:10px; align-items:center}
+    .bmIcon{width:18px; height:18px; border-radius:4px; border:1px solid var(--border); background:rgba(11,18,32,.7); object-fit:cover; flex:0 0 auto}
+    .bmName{font-size:13px; font-weight:650; line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+    .bmUrl{margin-top:6px; font-size:12px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+    .bmActions{position:absolute; top:8px; right:8px; display:flex; gap:8px}
+    .bmActions button{padding:6px 8px; border-radius:12px; font-size:12px}
     @media (max-width: 1040px){ .grid{grid-template-columns:1fr} }
   </style>
 </head>
@@ -67,14 +78,13 @@
           <button onclick="go('yt')">YouTube</button>
         </div>
 
-        <h3>⭐ 常用链接（示例）</h3>
-        <ul>
-          <li><a href="https://www.youtube.com/" target="_blank">YouTube</a></li>
-          <li><a href="https://www.bilibili.com/" target="_blank">哔哩哔哩</a></li>
-          <li><a href="https://github.com/" target="_blank">GitHub</a></li>
-        </ul>
-
-        <p class="small">后续我可以帮你做：分组书签 + 本地可编辑 + 拖拽排序 😎</p>
+        <h3>⭐ 书签</h3>
+        <div class="bookmarkBar">
+          <input id="bmUrl" placeholder="粘贴网址，例如 https://github.com/" />
+          <button id="bmAddBtn">添加</button>
+        </div>
+        <div class="bookmarkGrid" id="bookmarkGrid"></div>
+        <p class="small">会自动抓取网站标题与图标；抓不到时可点 ✏️ 改名。</p>
       </div>
 
       <!-- 中列：开播监控 -->
@@ -111,6 +121,221 @@ function go(engine){
 document.getElementById('q').addEventListener('keydown', (e)=>{
   if(e.key === 'Enter') go('google');
 });
+
+const BOOKMARK_KEY = "bookmarks_v1";
+
+function escapeHtml(s){
+  return String(s)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+function normalizeUrl(input){
+  const raw = String(input || "").trim();
+  if(!raw) return null;
+  const withProto = /^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//.test(raw) ? raw : `https://${raw}`;
+  try{
+    const u = new URL(withProto);
+    if(u.protocol !== "http:" && u.protocol !== "https:") return null;
+    return u.toString();
+  }catch{
+    return null;
+  }
+}
+
+function faviconFallback(urlStr){
+  try{
+    const u = new URL(urlStr);
+    return `https://www.google.com/s2/favicons?domain=${encodeURIComponent(u.hostname)}&sz=64`;
+  }catch{
+    return "";
+  }
+}
+
+function loadBookmarks(){
+  try{
+    const raw = localStorage.getItem(BOOKMARK_KEY);
+    if(!raw) return null;
+    const list = JSON.parse(raw);
+    return Array.isArray(list) ? list : null;
+  }catch{
+    return null;
+  }
+}
+
+function saveBookmarks(list){
+  localStorage.setItem(BOOKMARK_KEY, JSON.stringify(list));
+}
+
+function ensureDefaultBookmarks(){
+  const existing = loadBookmarks();
+  if(existing && existing.length) return existing;
+  const now = Date.now();
+  const defaults = [
+    { id: crypto.randomUUID(), url: "https://www.youtube.com/", name: "YouTube", icon: faviconFallback("https://www.youtube.com/"), createdAt: now },
+    { id: crypto.randomUUID(), url: "https://www.bilibili.com/", name: "哔哩哔哩", icon: faviconFallback("https://www.bilibili.com/"), createdAt: now + 1 },
+    { id: crypto.randomUUID(), url: "https://github.com/", name: "GitHub", icon: faviconFallback("https://github.com/"), createdAt: now + 2 },
+  ];
+  saveBookmarks(defaults);
+  return defaults;
+}
+
+async function fetchMeta(urlStr){
+  try{
+    const r = await fetch(`/api/meta?u=${encodeURIComponent(urlStr)}`, { cache: "no-store" });
+    if(!r.ok) return null;
+    return await r.json();
+  }catch{
+    return null;
+  }
+}
+
+function renderBookmarks(){
+  const grid = document.getElementById("bookmarkGrid");
+  const list = loadBookmarks() || [];
+  if(!list.length){
+    grid.innerHTML = `<div class="muted">暂无书签</div>`;
+    return;
+  }
+  grid.innerHTML = list
+    .slice()
+    .sort((a,b)=>(a.createdAt||0)-(b.createdAt||0))
+    .map((x)=>{
+      const name = escapeHtml(x.name || "未命名");
+      const url = x.url || "#";
+      const urlText = escapeHtml(url);
+      const icon = x.icon ? escapeHtml(x.icon) : "";
+      return `
+        <div class="bmItem" data-id="${escapeHtml(x.id)}" role="button" tabindex="0">
+          <div class="bmActions">
+            <button data-act="edit" title="改名">✏️</button>
+            <button data-act="del" title="删除">🗑️</button>
+          </div>
+          <div class="bmRow">
+            ${icon ? `<img class="bmIcon" src="${icon}" alt="">` : `<div class="bmIcon"></div>`}
+            <div class="bmName" title="${name}">${name}</div>
+          </div>
+          <div class="bmUrl" title="${urlText}">${urlText}</div>
+        </div>
+      `;
+    }).join("");
+}
+
+async function addBookmark(){
+  const input = document.getElementById("bmUrl");
+  const btn = document.getElementById("bmAddBtn");
+  const normalized = normalizeUrl(input.value);
+  if(!normalized){
+    input.focus();
+    return;
+  }
+
+  const list = loadBookmarks() || [];
+  if(list.some(x => x.url === normalized)){
+    input.value = "";
+    return;
+  }
+
+  btn.disabled = true;
+  const oldText = btn.textContent;
+  btn.textContent = "添加中…";
+
+  const meta = await fetchMeta(normalized);
+
+  let name = null;
+  let icon = null;
+  try{
+    const u = new URL(normalized);
+    name = meta?.title || u.hostname;
+    icon = meta?.icon || faviconFallback(normalized);
+  }catch{
+    name = meta?.title || "未命名";
+    icon = meta?.icon || "";
+  }
+
+  list.push({
+    id: crypto.randomUUID(),
+    url: normalized,
+    name,
+    icon,
+    createdAt: Date.now(),
+  });
+  saveBookmarks(list);
+  renderBookmarks();
+
+  input.value = "";
+  btn.textContent = oldText;
+  btn.disabled = false;
+}
+
+function updateBookmarkName(id, name){
+  const list = loadBookmarks() || [];
+  const idx = list.findIndex(x => x.id === id);
+  if(idx < 0) return;
+  list[idx] = { ...list[idx], name };
+  saveBookmarks(list);
+  renderBookmarks();
+}
+
+function deleteBookmark(id){
+  const list = loadBookmarks() || [];
+  const next = list.filter(x => x.id !== id);
+  saveBookmarks(next);
+  renderBookmarks();
+}
+
+function bindBookmarkUI(){
+  const input = document.getElementById("bmUrl");
+  const btn = document.getElementById("bmAddBtn");
+  btn.addEventListener("click", addBookmark);
+  input.addEventListener("keydown", (e)=>{
+    if(e.key === "Enter") addBookmark();
+  });
+
+  const grid = document.getElementById("bookmarkGrid");
+  grid.addEventListener("click", (e)=>{
+    const t = e.target;
+    const card = t.closest?.(".bmItem");
+    if(!card) return;
+    const id = card.getAttribute("data-id");
+    const act = t.getAttribute?.("data-act");
+    if(act === "edit"){
+      e.preventDefault();
+      e.stopPropagation();
+      const list = loadBookmarks() || [];
+      const cur = list.find(x => x.id === id);
+      const nextName = prompt("输入书签名称：", cur?.name || "");
+      if(nextName === null) return;
+      const trimmed = nextName.trim();
+      if(!trimmed) return;
+      updateBookmarkName(id, trimmed);
+      return;
+    }
+    if(act === "del"){
+      e.preventDefault();
+      e.stopPropagation();
+      deleteBookmark(id);
+      return;
+    }
+
+    const list = loadBookmarks() || [];
+    const cur = list.find(x => x.id === id);
+    if(cur?.url) window.open(cur.url, "_blank");
+  });
+
+  grid.addEventListener("keydown", (e)=>{
+    const card = e.target.closest?.(".bmItem");
+    if(!card) return;
+    if(e.key !== "Enter") return;
+    const id = card.getAttribute("data-id");
+    const list = loadBookmarks() || [];
+    const cur = list.find(x => x.id === id);
+    if(cur?.url) window.open(cur.url, "_blank");
+  });
+}
 
 function fmtTime(iso){
   try{
@@ -201,6 +426,10 @@ async function refreshLive(){
 
 refreshLive();
 setInterval(refreshLive, 60_000);
+
+ensureDefaultBookmarks();
+renderBookmarks();
+bindBookmarkUI();
 </script>
 </body>
 </html>
