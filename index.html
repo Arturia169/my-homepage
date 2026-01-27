@@ -123,7 +123,8 @@ function renderItems(items, fallbackText){
   if(!items || items.length === 0) return `<div class="muted">${fallbackText}</div>`;
   return `<div class="list">${
     items.map(x => {
-      const thumb = x.thumb || x.cover || "";
+      const rawThumb = x.thumb || x.cover || "";
+      const thumb = rawThumb ? `/api/img?u=${encodeURIComponent(rawThumb)}` : "";
       const title = x.title || "（无标题）";
       const url = x.url || "#";
       const line1 = x.platform === "bilibili"
