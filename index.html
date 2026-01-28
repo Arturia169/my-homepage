@@ -77,14 +77,6 @@
           <button onclick="go('bili')">B站</button>
           <button onclick="go('yt')">YouTube</button>
         </div>
-
-        <h3>⭐ 书签</h3>
-        <div class="bookmarkBar">
-          <input id="bmUrl" placeholder="粘贴网址，例如 https://github.com/" />
-          <button id="bmAddBtn">添加</button>
-        </div>
-        <div class="bookmarkGrid" id="bookmarkGrid"></div>
-        <p class="small">会自动抓取网站标题与图标；抓不到时可点 ✏️ 改名。</p>
       </div>
 
       <!-- 中列：开播监控 -->
@@ -104,6 +96,18 @@
         </ul>
         <p class="small">你想下一步先加哪个？我按你习惯往“信息密集”方向堆起来。</p>
       </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="card" id="bookmarksCard">
+      <h2>⭐ 书签</h2>
+      <div class="bookmarkBar">
+        <input id="bmUrl" placeholder="粘贴网址，例如 https://github.com/" />
+        <button id="bmAddBtn">添加</button>
+      </div>
+      <div class="bookmarkGrid" id="bookmarkGrid"></div>
+      <p class="small">会自动抓取网站标题与图标；抓不到时可点 ✏️ 改名。</p>
     </div>
   </div>
 
