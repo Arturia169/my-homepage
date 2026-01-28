@@ -54,6 +54,12 @@ function fmtTime(iso) {
   }
 }
 
+async function fetchJson(url, headers) {
+  const r = await fetch(url, { headers });
+  const j = await r.json().catch(() => null);
+  return { ok: r.ok, status: r.status, json: j };
+}
+
 async function handleLive(res) {
   const BILIBILI_ROOMS = getEnvList("BILIBILI_ROOMS");
   const YT_CHANNELS = getEnvList("YT_CHANNELS");
@@ -162,6 +168,83 @@ async function handleLive(res) {
     bili,
     youtube,
     youtube_chatroom,
+  });
+}
+
+async function handleHot(res) {
+  const ua =
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36";
+
+  const biliUrl = "https://api.bilibili.com/x/web-interface/popular?pn=1&ps=20";
+  const biliResp = await fetchJson(biliUrl, {
+    "User-Agent": ua,
+    Referer: "https://www.bilibili.com/",
+  });
+  const biliItems = biliResp.json?.data?.list || [];
+  const bili = biliItems.map((x) => ({
+    title: x?.title || null,
+    url: x?.bvid ? `https://www.bilibili.com/video/${x.bvid}` : x?.short_link || null,
+    owner: x?.owner?.name || null,
+    view: x?.stat?.view ?? null,
+    like: x?.stat?.like ?? null,
+    cover: x?.pic || null,
+  }));
+
+  const zhihuUrl =
+    "https://www.zhihu.com/api/v3/feed/topstory/hot-lists/total?limit=50&desktop=true";
+  const zhihuResp = await fetchJson(zhihuUrl, {
+    "User-Agent": ua,
+    Referer: "https://www.zhihu.com/hot",
+  });
+  const zhihuItems = zhihuResp.json?.data || [];
+  const zhihu = zhihuItems.map((x) => {
+    const targetUrl = x?.target?.url || "";
+    const qid = targetUrl.match(/questions?\\/(\\d+)/)?.[1] || "";
+    return {
+      title: x?.target?.title || null,
+      url: qid ? `https://www.zhihu.com/question/${qid}` : targetUrl || null,
+      hot: x?.detail_text || null,
+    };
+  });
+
+  json(res, 200, {
+    version: "hot-api-v1-2026-01-28",
+    updated_at: fmtTime(new Date().toISOString()),
+    bili,
+    zhihu,
+  });
+}
+
+async function handleWeather(res, url) {
+  const city =
+    url.searchParams.get("city") ||
+    process.env.WEATHER_CITY ||
+    process.env.WEATHER_DEFAULT_CITY;
+
+  if (!city) return json(res, 400, { error: "Missing city" });
+
+  const geoUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(
+    city
+  )}&count=1&language=zh&format=json`;
+  const geo = await fetchJson(geoUrl);
+  const place = geo.json?.results?.[0];
+  if (!place) return json(res, 404, { error: "City not found" });
+
+  const forecastUrl = `https://api.open-meteo.com/v1/forecast?latitude=${place.latitude}&longitude=${place.longitude}&current_weather=true&timezone=auto`;
+  const forecast = await fetchJson(forecastUrl);
+  const current = forecast.json?.current_weather;
+
+  if (!current) {
+    return json(res, 502, { error: "Weather unavailable" });
+  }
+
+  json(res, 200, {
+    city: place.name,
+    time: current.time,
+    temperature: Math.round(current.temperature),
+    wind: Math.round(current.windspeed),
+    code: current.weathercode,
+    updated_at: fmtTime(new Date().toISOString()),
   });
 }
 
@@ -340,6 +423,8 @@ const server = http.createServer(async (req, res) => {
 
   try {
     if (url.pathname === "/api/live") return await handleLive(res);
+    if (url.pathname === "/api/hot") return await handleHot(res);
+    if (url.pathname === "/api/weather") return await handleWeather(res, url);
     if (url.pathname === "/api/img") return await handleImg(req, res, url);
     if (url.pathname === "/api/meta") return await handleMeta(res, url);
     if (url.pathname === "/" || url.pathname === "/index.html") return await serveStatic(res, "index.html");

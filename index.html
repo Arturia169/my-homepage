@@ -1,114 +1,272 @@
+﻿
 <!doctype html>
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Home</title>
+  <title>Dashboard</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap');
+
     :root{
-      --bg:#0b0f17;
-      --card:#111827;
-      --border:#1f2937;
-      --muted:rgba(230,237,243,.65);
+      --bg-0:#0b0f17;
+      --bg-1:#0f172a;
+      --bg-2:#0b1220;
+      --card:#101827;
+      --card-2:#0f1a2e;
+      --border:#1f2a3c;
+      --muted:rgba(230,237,243,.68);
       --text:#e6edf3;
       --link:#7dd3fc;
-      --chip:#0b1220;
-      --chipBorder:#334155;
-      --shadow: 0 10px 24px rgba(0,0,0,.28);
-      --radius:16px;
+      --chip:#101a2b;
+      --chipBorder:#2a3a55;
+      --shadow: 0 12px 30px rgba(0,0,0,.35);
+      --radius:18px;
+      --soft: 0 0 0 1px rgba(125,211,252,.08), inset 0 0 0 1px rgba(255,255,255,.02);
     }
-    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial; margin:0; background:var(--bg); color:var(--text)}
-    .wrap{max-width:1280px; margin:0 auto; padding:18px}
-    .topbar{display:flex; gap:12px; align-items:center; margin-bottom:14px; flex-wrap:wrap}
-    .brand{font-weight:700; letter-spacing:.2px}
-    .muted{opacity:.7; font-size:12px}
-    .grid{display:grid; grid-template-columns: 1.15fr 1.7fr 1.15fr; gap:14px}
-    .card{background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:14px; box-shadow: var(--shadow)}
-    h2{margin:0 0 10px; font-size:16px}
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      color:var(--text);
+      background: radial-gradient(1200px 420px at 10% -5%, rgba(86,184,255,.18), transparent 55%),
+                  radial-gradient(900px 420px at 90% -10%, rgba(76,29,149,.2), transparent 55%),
+                  linear-gradient(180deg, var(--bg-1), var(--bg-0));
+      font-family: "Outfit", "Noto Sans SC", system-ui, -apple-system, Segoe UI, sans-serif;
+      letter-spacing:.2px;
+    }
+
+    .wrap{max-width:1320px; margin:0 auto; padding:18px 18px 30px}
+    .topbar{display:flex; gap:14px; align-items:center; flex-wrap:wrap; margin-bottom:16px}
+    .brand{display:flex; align-items:center; gap:10px; font-weight:700; font-size:20px}
+    .brand span{font-weight:500; font-size:14px; color:var(--muted)}
+
+    .badge{display:inline-flex; align-items:center; gap:8px; padding:6px 12px; border-radius:999px; border:1px solid var(--chipBorder); background:rgba(9,16,29,.75); font-size:12px; color:var(--muted)}
+    .dot{width:8px; height:8px; border-radius:999px; background:#ef4444; box-shadow:0 0 0 4px rgba(239,68,68,.18)}
+    .dot.ok{background:#22c55e; box-shadow:0 0 0 4px rgba(34,197,94,.18)}
+
+    .grid{display:grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap:14px}
+    .span-3{grid-column: span 3}
+    .span-4{grid-column: span 4}
+    .span-5{grid-column: span 5}
+    .span-6{grid-column: span 6}
+    .span-7{grid-column: span 7}
+    .span-8{grid-column: span 8}
+    .span-9{grid-column: span 9}
+    .span-12{grid-column: span 12}
+
+    .card{
+      background:linear-gradient(180deg, rgba(16,24,39,.96), rgba(12,19,33,.96));
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      padding:16px;
+      box-shadow: var(--shadow);
+      position:relative;
+      overflow:hidden;
+    }
+    .card::after{
+      content:"";
+      position:absolute; inset:0;
+      border-radius:var(--radius);
+      box-shadow: var(--soft);
+      pointer-events:none;
+    }
+
+    h2{margin:0 0 10px; font-size:16px; display:flex; gap:8px; align-items:center}
     h3{margin:12px 0 8px; font-size:13px; color:var(--muted)}
+    p{margin:0}
     a{color:var(--link); text-decoration:none}
     a:hover{text-decoration:underline}
-    ul{margin:0; padding-left:18px}
-    input{width:100%; box-sizing:border-box; border-radius:14px; padding:12px 12px; border:1px solid var(--chipBorder); background:var(--chip); color:var(--text)}
-    .btns{display:flex; gap:10px; margin-top:10px; flex-wrap:wrap}
-    button{border-radius:14px; padding:10px 12px; border:1px solid var(--chipBorder); background:var(--chip); color:var(--text); cursor:pointer}
-    button:hover{background:#0f1a30}
-    .row{display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap}
-    .badge{display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; border:1px solid var(--chipBorder); background:rgba(11,18,32,.7); font-size:12px; color:var(--muted)}
-    .dot{width:8px; height:8px; border-radius:999px; background:#ef4444; box-shadow:0 0 0 4px rgba(239,68,68,.18)}
-    .list{display:flex; flex-direction:column; gap:10px}
-    .item{display:flex; gap:10px; padding:10px; border:1px solid var(--border); border-radius:14px; background:rgba(17,24,39,.55)}
-    .thumb{width:96px; height:54px; border-radius:10px; border:1px solid var(--border); object-fit:cover; flex:0 0 auto}
-    .meta{min-width:0}
-    .title{font-size:13px; line-height:1.25; margin:0 0 6px; font-weight:600; word-break:break-word}
-    .sub{font-size:12px; color:var(--muted); display:flex; gap:10px; flex-wrap:wrap}
-    .pill{display:inline-flex; align-items:center; gap:6px; padding:2px 8px; border-radius:999px; border:1px solid var(--chipBorder); background:rgba(11,18,32,.7)}
-    .rightcol ul{padding-left:16px}
+
+    .muted{opacity:.8; font-size:12px}
     .small{font-size:12px; color:var(--muted)}
-    .bookmarkBar{display:flex; gap:10px; margin-top:10px}
-    .bookmarkBar input{flex:1 1 auto; min-width:160px}
-    .bookmarkGrid{display:grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap:10px; margin-top:10px}
-    .bmItem{position:relative; border:1px solid var(--border); border-radius:14px; background:rgba(17,24,39,.55); padding:10px; cursor:pointer}
-    .bmItem:hover{background:rgba(17,24,39,.75)}
+
+    .input, input, textarea, select{
+      width:100%;
+      box-sizing:border-box;
+      border-radius:14px;
+      padding:12px 12px;
+      border:1px solid var(--chipBorder);
+      background:var(--chip);
+      color:var(--text);
+      font-family:inherit;
+      outline:none;
+    }
+    textarea{min-height:92px; resize:vertical}
+
+    .btns{display:flex; gap:10px; margin-top:12px; flex-wrap:wrap}
+    button{
+      border-radius:14px;
+      padding:10px 12px;
+      border:1px solid var(--chipBorder);
+      background:var(--chip);
+      color:var(--text);
+      cursor:pointer;
+      font-family:inherit;
+      font-weight:600;
+    }
+    button:hover{background:#12213a}
+    button:disabled{opacity:.6; cursor:not-allowed}
+    .btn-primary{background:linear-gradient(180deg, #143052, #102746); border-color:#27456b}
+
+    .row{display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap}
+    .pill{display:inline-flex; align-items:center; gap:6px; padding:4px 10px; border-radius:999px; border:1px solid var(--chipBorder); background:rgba(11,18,32,.7); font-size:12px; color:var(--muted)}
+
+    .list{display:flex; flex-direction:column; gap:10px}
+    .item{display:flex; gap:12px; padding:12px; border:1px solid var(--border); border-radius:14px; background:rgba(17,24,39,.55)}
+    .thumb{width:102px; height:58px; border-radius:10px; border:1px solid var(--border); object-fit:cover; flex:0 0 auto}
+    .meta{min-width:0}
+    .title{font-size:13px; line-height:1.4; margin:0 0 6px; font-weight:600; word-break:break-word}
+    .sub{font-size:12px; color:var(--muted); display:flex; gap:10px; flex-wrap:wrap}
+
+    .hotTabs{display:flex; gap:8px; margin-bottom:10px}
+    .hotTabs button{padding:6px 10px; border-radius:999px; font-size:12px}
+    .hotTabs .active{background:linear-gradient(180deg, #143052, #102746); border-color:#27456b}
+    .hotList{display:flex; flex-direction:column; gap:10px}
+    .hotItem{display:grid; grid-template-columns: 28px 1fr; gap:10px; padding:10px; border-radius:12px; border:1px solid var(--border); background:rgba(17,24,39,.55)}
+    .hotIndex{font-weight:700; color:#93c5fd; text-align:center}
+    .hotTitle{font-size:13px; line-height:1.45; font-weight:600}
+    .hotMeta{font-size:12px; color:var(--muted); margin-top:4px; display:flex; gap:10px; flex-wrap:wrap}
+
+    .weatherBox{display:flex; flex-direction:column; gap:12px}
+    .weatherMain{display:flex; align-items:center; gap:16px; flex-wrap:wrap}
+    .weatherTemp{font-size:38px; font-weight:700}
+    .weatherInfo{display:flex; flex-direction:column; gap:4px; font-size:13px; color:var(--muted)}
+
+    .bookmarkBar{display:grid; grid-template-columns: 1.4fr .7fr .7fr auto; gap:10px; align-items:center; margin-bottom:12px}
+    .bookmarkTools{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+    .bookmarkTools button{padding:8px 10px; font-size:12px}
+    .bookmarkGrid{display:flex; flex-direction:column; gap:14px; margin-top:10px}
+    .bmGroup{display:flex; flex-direction:column; gap:10px}
+    .bmGroupHeader{display:flex; justify-content:space-between; align-items:center; gap:10px}
+    .bmGroupTitle{font-size:13px; font-weight:700; color:#cfe3ff}
+    .bmGroupCount{font-size:12px; color:var(--muted)}
+    .bmGroupList{display:grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap:12px}
+    .bmItem{position:relative; border:1px solid var(--border); border-radius:14px; background:rgba(17,24,39,.65); padding:12px; cursor:grab; display:flex; flex-direction:column; gap:10px}
+    .bmItem.dragging{opacity:.5}
+    .bmItem:hover{background:rgba(17,24,39,.85)}
     .bmRow{display:flex; gap:10px; align-items:center}
-    .bmIcon{width:18px; height:18px; border-radius:4px; border:1px solid var(--border); background:rgba(11,18,32,.7); object-fit:cover; flex:0 0 auto}
-    .bmName{font-size:13px; font-weight:650; line-height:1.2; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
-    .bmUrl{margin-top:6px; font-size:12px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
-    .bmActions{position:absolute; top:8px; right:8px; display:flex; gap:8px}
-    .bmActions button{padding:6px 8px; border-radius:12px; font-size:12px}
-    @media (max-width: 1040px){ .grid{grid-template-columns:1fr} }
+    .bmIcon{width:22px; height:22px; border-radius:6px; border:1px solid var(--border); background:rgba(11,18,32,.7); object-fit:cover; flex:0 0 auto}
+    .bmName{font-size:14px; font-weight:650; line-height:1.3; word-break:break-word}
+    .bmUrl{font-size:12px; color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+    .bmActions{position:absolute; top:10px; right:10px; display:flex; gap:8px}
+    .bmActions button{padding:6px 8px; border-radius:12px; font-size:11px}
+
+    .notice{padding:10px 12px; border-radius:12px; border:1px dashed #2b3b58; color:var(--muted); font-size:12px; background:rgba(11,18,32,.6)}
+
+    details{border:1px solid var(--border); border-radius:14px; padding:10px 12px; background:rgba(11,18,32,.6)}
+    details summary{cursor:pointer; font-size:13px; font-weight:600}
+
+    @media (max-width: 1200px){
+      .span-3,.span-4,.span-5,.span-6,.span-7,.span-8,.span-9{grid-column: span 12}
+      .bookmarkBar{grid-template-columns: 1fr}
+    }
+    @media (max-width: 720px){
+      .bmGroupList{grid-template-columns: 1fr}
+      .topbar{gap:10px}
+    }
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="topbar">
-      <div class="brand">🏠 Ryan's Dashboard</div>
-      <div class="badge" id="statusBadge">⏳ 正在加载数据…</div>
+      <div class="brand">🏠 Ryan's Dashboard <span>Personal Hub</span></div>
+      <div class="badge" id="statusBadge"><span class="dot"></span>加载中</div>
       <div class="muted" id="updatedAt"></div>
     </div>
 
     <div class="grid">
-      <!-- 左列 -->
-      <div class="card">
+      <section class="card span-3">
         <h2>🔎 搜索</h2>
-        <input id="q" placeholder="输入关键词，回车搜索…" />
+        <input id="q" placeholder="输入关键词，回车搜索" />
         <div class="btns">
           <button onclick="go('google')">Google</button>
           <button onclick="go('bili')">B站</button>
           <button onclick="go('yt')">YouTube</button>
         </div>
-      </div>
+      </section>
 
-      <!-- 中列：开播监控 -->
-      <div class="card" id="liveCard">
+      <section class="card span-6" id="liveCard">
         <h2>📺 开播监控</h2>
         <div class="muted">正在加载…</div>
-      </div>
+      </section>
 
-      <!-- 右列：预留模块 -->
-      <div class="card rightcol">
+      <section class="card span-3">
         <h2>🧩 模块</h2>
-        <ul>
-          <li>📰 热榜（B站/微博/HN）</li>
-          <li>✅ 待办（本地存储/云端同步）</li>
-          <li>🌦️ 天气（可选）</li>
-          <li>💻 Homelab 状态（探活/面板）</li>
+        <ul class="muted" style="line-height:1.8; padding-left:16px; margin:0;">
+          <li>🔥 热榜（B站 / 知乎）</li>
+          <li>☑️ 待办（本地/云端）</li>
+          <li>🌤️ 天气（可选）</li>
+          <li>🖥️ Homelab 状态（探活/面板）</li>
         </ul>
-        <p class="small">你想下一步先加哪个？我按你习惯往“信息密集”方向堆起来。</p>
-      </div>
+        <p class="small" style="margin-top:10px">这块可以继续扩展成“信息密集”区。</p>
+      </section>
+
+      <section class="card span-7" id="hotCard">
+        <div class="row" style="margin-bottom:6px">
+          <h2>🔥 热榜聚合</h2>
+          <div class="muted" id="hotUpdated"></div>
+        </div>
+        <div class="hotTabs">
+          <button class="active" data-tab="bili">B站热门</button>
+          <button data-tab="zhihu">知乎热榜</button>
+        </div>
+        <div class="hotList" id="hotList"></div>
+      </section>
+
+      <section class="card span-5" id="weatherCard">
+        <div class="row">
+          <h2>🌤️ 天气</h2>
+          <div class="muted" id="weatherUpdated"></div>
+        </div>
+        <div class="weatherBox">
+          <div class="bookmarkTools">
+            <input id="weatherCity" placeholder="输入城市，如 Beijing / 上海 / 深圳" />
+            <button class="btn-primary" id="weatherBtn">更新</button>
+          </div>
+          <div id="weatherBody" class="notice">尚未设置城市</div>
+        </div>
+      </section>
     </div>
   </div>
 
   <div class="wrap">
-    <div class="card" id="bookmarksCard">
-      <h2>⭐ 书签</h2>
+    <section class="card" id="bookmarksCard">
+      <div class="row" style="margin-bottom:8px">
+        <h2>⭐ 书签</h2>
+        <div class="muted">分组 / 搜索 / 拖拽排序 / 导入导出</div>
+      </div>
+
       <div class="bookmarkBar">
         <input id="bmUrl" placeholder="粘贴网址，例如 https://github.com/" />
-        <button id="bmAddBtn">添加</button>
+        <input id="bmName" placeholder="名称（可选）" />
+        <input id="bmGroup" list="bmGroupList" placeholder="分组（可选）" />
+        <button id="bmAddBtn" class="btn-primary">添加</button>
       </div>
+
+      <div class="bookmarkTools">
+        <input id="bmSearch" placeholder="搜索书签（名称 / 地址 / 分组）" />
+        <button id="bmExportBtn">导出 JSON</button>
+        <button id="bmExportCopy">复制 JSON</button>
+      </div>
+
+      <details style="margin-top:10px">
+        <summary>导入书签</summary>
+        <div style="display:grid; gap:10px; margin-top:10px">
+          <select id="bmImportMode">
+            <option value="merge">合并到现有</option>
+            <option value="replace">覆盖现有</option>
+          </select>
+          <input type="file" id="bmImportFile" accept="application/json" />
+          <textarea id="bmImportText" placeholder='粘贴 JSON 数组，例如 [{"url":"https://...","name":"示例","group":"常用"}]'></textarea>
+          <button id="bmImportBtn">开始导入</button>
+        </div>
+      </details>
+
       <div class="bookmarkGrid" id="bookmarkGrid"></div>
-      <p class="small">会自动抓取网站标题与图标；抓不到时可点 ✏️ 改名。</p>
-    </div>
+      <datalist id="bmGroupList"></datalist>
+      <p class="small" style="margin-top:12px">拖拽卡片可调整顺序，拖到分组标题区域可移动分组。</p>
+    </section>
   </div>
 
 <script>
@@ -122,11 +280,14 @@ function go(engine){
   };
   window.open(m[engine], '_blank');
 }
+
 document.getElementById('q').addEventListener('keydown', (e)=>{
   if(e.key === 'Enter') go('google');
 });
 
-const BOOKMARK_KEY = "bookmarks_v1";
+const BOOKMARK_KEY = "bookmarks_v2";
+const LEGACY_BOOKMARK_KEY = "bookmarks_v1";
+const WEATHER_KEY = "weather_city_v1";
 
 function escapeHtml(s){
   return String(s)
@@ -159,7 +320,7 @@ function faviconFallback(urlStr){
   }
 }
 
-function loadBookmarks(){
+function loadBookmarksRaw(){
   try{
     const raw = localStorage.getItem(BOOKMARK_KEY);
     if(!raw) return null;
@@ -174,14 +335,49 @@ function saveBookmarks(list){
   localStorage.setItem(BOOKMARK_KEY, JSON.stringify(list));
 }
 
+function normalizeBookmarks(list){
+  const now = Date.now();
+  return (list || []).map((x, i) => ({
+    id: x.id || crypto.randomUUID(),
+    url: x.url,
+    name: x.name || x.url || "未命名",
+    icon: x.icon || faviconFallback(x.url || ""),
+    createdAt: x.createdAt || now + i,
+    order: Number.isFinite(x.order) ? x.order : i + 1,
+    group: (x.group || "").trim(),
+  }));
+}
+
+function migrateLegacy(){
+  const legacy = localStorage.getItem(LEGACY_BOOKMARK_KEY);
+  if(!legacy) return null;
+  try{
+    const list = JSON.parse(legacy);
+    if(!Array.isArray(list)) return null;
+    const normalized = normalizeBookmarks(list);
+    saveBookmarks(normalized);
+    return normalized;
+  }catch{
+    return null;
+  }
+}
+
+function loadBookmarks(){
+  const cur = loadBookmarksRaw();
+  if(cur && cur.length) return normalizeBookmarks(cur);
+  const migrated = migrateLegacy();
+  if(migrated && migrated.length) return migrated;
+  return [];
+}
+
 function ensureDefaultBookmarks(){
   const existing = loadBookmarks();
   if(existing && existing.length) return existing;
   const now = Date.now();
   const defaults = [
-    { id: crypto.randomUUID(), url: "https://www.youtube.com/", name: "YouTube", icon: faviconFallback("https://www.youtube.com/"), createdAt: now },
-    { id: crypto.randomUUID(), url: "https://www.bilibili.com/", name: "哔哩哔哩", icon: faviconFallback("https://www.bilibili.com/"), createdAt: now + 1 },
-    { id: crypto.randomUUID(), url: "https://github.com/", name: "GitHub", icon: faviconFallback("https://github.com/"), createdAt: now + 2 },
+    { id: crypto.randomUUID(), url: "https://www.youtube.com/", name: "YouTube", icon: faviconFallback("https://www.youtube.com/"), createdAt: now, order: 1, group: "常用" },
+    { id: crypto.randomUUID(), url: "https://www.bilibili.com/", name: "哔哩哔哩", icon: faviconFallback("https://www.bilibili.com/"), createdAt: now + 1, order: 2, group: "常用" },
+    { id: crypto.randomUUID(), url: "https://github.com/", name: "GitHub", icon: faviconFallback("https://github.com/"), createdAt: now + 2, order: 3, group: "开发" },
   ];
   saveBookmarks(defaults);
   return defaults;
@@ -197,25 +393,63 @@ async function fetchMeta(urlStr){
   }
 }
 
+function sortByOrder(a, b){
+  return (a.order || 0) - (b.order || 0);
+}
+
+function getGroupName(group){
+  return group && group.trim() ? group.trim() : "未分组";
+}
+
+function renderGroupOptions(groups){
+  const dl = document.getElementById("bmGroupList");
+  dl.innerHTML = groups.map(g => `<option value="${escapeHtml(g)}"></option>`).join("");
+}
+
 function renderBookmarks(){
   const grid = document.getElementById("bookmarkGrid");
-  const list = loadBookmarks() || [];
+  const searchValue = document.getElementById("bmSearch").value.trim().toLowerCase();
+  const list = loadBookmarks().sort(sortByOrder);
+
   if(!list.length){
-    grid.innerHTML = `<div class="muted">暂无书签</div>`;
+    grid.innerHTML = `<div class="notice">暂无书签</div>`;
     return;
   }
-  grid.innerHTML = list
-    .slice()
-    .sort((a,b)=>(a.createdAt||0)-(b.createdAt||0))
-    .map((x)=>{
+
+  const filtered = list.filter(x => {
+    if(!searchValue) return true;
+    const hay = `${x.name || ""} ${x.url || ""} ${x.group || ""}`.toLowerCase();
+    return hay.includes(searchValue);
+  });
+
+  if(!filtered.length){
+    grid.innerHTML = `<div class="notice">未找到匹配的书签</div>`;
+    return;
+  }
+
+  const groupMap = new Map();
+  for(const item of filtered){
+    const key = getGroupName(item.group);
+    if(!groupMap.has(key)) groupMap.set(key, []);
+    groupMap.get(key).push(item);
+  }
+
+  const groups = Array.from(groupMap.keys()).sort((a,b)=>a.localeCompare(b, 'zh-CN'));
+  renderGroupOptions(groups.filter(g => g !== "未分组"));
+
+  grid.innerHTML = groups.map(groupName => {
+    const items = groupMap.get(groupName).sort(sortByOrder);
+    const groupKey = groupName === "未分组" ? "" : groupName;
+
+    const cards = items.map(x => {
       const name = escapeHtml(x.name || "未命名");
       const url = x.url || "#";
       const urlText = escapeHtml(url);
       const icon = x.icon ? escapeHtml(x.icon) : "";
       return `
-        <div class="bmItem" data-id="${escapeHtml(x.id)}" role="button" tabindex="0">
+        <div class="bmItem" data-id="${escapeHtml(x.id)}" data-group="${escapeHtml(groupKey)}" draggable="true" role="button" tabindex="0">
           <div class="bmActions">
-            <button data-act="edit" title="改名">✏️</button>
+            <button data-act="edit" title="改名/分组">✏️</button>
             <button data-act="del" title="删除">🗑️</button>
           </div>
           <div class="bmRow">
@@ -226,20 +460,35 @@ function renderBookmarks(){
         </div>
       `;
     }).join("");
+
+    return `
+      <div class="bmGroup" data-group="${escapeHtml(groupKey)}">
+        <div class="bmGroupHeader">
+          <div class="bmGroupTitle">${escapeHtml(groupName)}</div>
+          <div class="bmGroupCount">${items.length} 个</div>
+        </div>
+        <div class="bmGroupList">${cards}</div>
+      </div>
+    `;
+  }).join("");
 }
 
 async function addBookmark(){
-  const input = document.getElementById("bmUrl");
+  const inputUrl = document.getElementById("bmUrl");
+  const inputName = document.getElementById("bmName");
+  const inputGroup = document.getElementById("bmGroup");
   const btn = document.getElementById("bmAddBtn");
-  const normalized = normalizeUrl(input.value);
+
+  const normalized = normalizeUrl(inputUrl.value);
   if(!normalized){
-    input.focus();
+    inputUrl.focus();
     return;
   }
 
-  const list = loadBookmarks() || [];
+  const list = loadBookmarks();
   if(list.some(x => x.url === normalized)){
-    input.value = "";
+    inputUrl.value = "";
+    inputName.value = "";
     return;
   }
 
@@ -249,16 +498,18 @@ async function addBookmark(){
 
   const meta = await fetchMeta(normalized);
 
-  let name = null;
+  let name = (inputName.value || "").trim();
   let icon = null;
   try{
     const u = new URL(normalized);
-    name = meta?.title || u.hostname;
+    if(!name) name = meta?.title || u.hostname;
     icon = meta?.icon || faviconFallback(normalized);
   }catch{
-    name = meta?.title || "未命名";
+    if(!name) name = meta?.title || "未命名";
     icon = meta?.icon || "";
   }
+
+  const maxOrder = list.reduce((m, x) => Math.max(m, x.order || 0), 0);
 
   list.push({
     id: crypto.randomUUID(),
@@ -266,37 +517,145 @@ async function addBookmark(){
     name,
     icon,
     createdAt: Date.now(),
+    order: maxOrder + 1,
+    group: inputGroup.value.trim(),
   });
   saveBookmarks(list);
   renderBookmarks();
 
-  input.value = "";
+  inputUrl.value = "";
+  inputName.value = "";
+  inputGroup.value = "";
   btn.textContent = oldText;
   btn.disabled = false;
 }
 
-function updateBookmarkName(id, name){
-  const list = loadBookmarks() || [];
+function updateBookmark(id, patch){
+  const list = loadBookmarks();
   const idx = list.findIndex(x => x.id === id);
   if(idx < 0) return;
-  list[idx] = { ...list[idx], name };
+  list[idx] = { ...list[idx], ...patch };
   saveBookmarks(list);
   renderBookmarks();
 }
 
 function deleteBookmark(id){
-  const list = loadBookmarks() || [];
+  const list = loadBookmarks();
   const next = list.filter(x => x.id !== id);
   saveBookmarks(next);
   renderBookmarks();
 }
 
+function reorderBookmarks(dragId, dropId, dropGroup){
+  const list = loadBookmarks().sort(sortByOrder);
+  const dragIndex = list.findIndex(x => x.id === dragId);
+  if(dragIndex < 0) return;
+  const [dragItem] = list.splice(dragIndex, 1);
+  dragItem.group = dropGroup || "";
+
+  if(dropId){
+    const dropIndex = list.findIndex(x => x.id === dropId);
+    if(dropIndex >= 0){
+      list.splice(dropIndex, 0, dragItem);
+    }else{
+      list.push(dragItem);
+    }
+  }else{
+    const lastIndex = (() => {
+      let idx = -1;
+      for(let i = 0; i < list.length; i++){
+        if(getGroupName(list[i].group) === getGroupName(dropGroup)) idx = i;
+      }
+      return idx;
+    })();
+    if(lastIndex >= 0) list.splice(lastIndex + 1, 0, dragItem);
+    else list.push(dragItem);
+  }
+
+  list.forEach((x, i) => x.order = i + 1);
+  saveBookmarks(list);
+  renderBookmarks();
+}
+
 function bindBookmarkUI(){
-  const input = document.getElementById("bmUrl");
+  const inputUrl = document.getElementById("bmUrl");
+  const inputName = document.getElementById("bmName");
+  const inputGroup = document.getElementById("bmGroup");
   const btn = document.getElementById("bmAddBtn");
+
   btn.addEventListener("click", addBookmark);
-  input.addEventListener("keydown", (e)=>{
-    if(e.key === "Enter") addBookmark();
+  inputUrl.addEventListener("keydown", (e)=>{ if(e.key === "Enter") addBookmark(); });
+  inputName.addEventListener("keydown", (e)=>{ if(e.key === "Enter") addBookmark(); });
+  inputGroup.addEventListener("keydown", (e)=>{ if(e.key === "Enter") addBookmark(); });
+
+  document.getElementById("bmSearch").addEventListener("input", renderBookmarks);
+
+  document.getElementById("bmExportBtn").addEventListener("click", () => {
+    const list = loadBookmarks().sort(sortByOrder);
+    const blob = new Blob([JSON.stringify(list, null, 2)], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `bookmarks-${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  });
+
+  document.getElementById("bmExportCopy").addEventListener("click", async () => {
+    const list = loadBookmarks().sort(sortByOrder);
+    await navigator.clipboard.writeText(JSON.stringify(list, null, 2));
+    alert("已复制到剪贴板");
+  });
+
+  document.getElementById("bmImportBtn").addEventListener("click", async () => {
+    const mode = document.getElementById("bmImportMode").value;
+    const fileInput = document.getElementById("bmImportFile");
+    const textArea = document.getElementById("bmImportText");
+    let text = textArea.value.trim();
+
+    if(!text && fileInput.files && fileInput.files[0]){
+      text = await fileInput.files[0].text();
+    }
+    if(!text){
+      alert("请提供 JSON 内容或选择文件");
+      return;
+    }
+
+    let parsed;
+    try{
+      parsed = JSON.parse(text);
+    }catch{
+      alert("JSON 解析失败");
+      return;
+    }
+
+    if(!Array.isArray(parsed)){
+      alert("导入格式必须是数组");
+      return;
+    }
+
+    const normalized = normalizeBookmarks(parsed.filter(x => x && x.url));
+    if(!normalized.length){
+      alert("未找到有效书签");
+      return;
+    }
+
+    let list = loadBookmarks();
+    if(mode === "replace"){
+      list = normalized;
+    }else{
+      const existingUrls = new Set(list.map(x => x.url));
+      const maxOrder = list.reduce((m, x) => Math.max(m, x.order || 0), 0);
+      let order = maxOrder + 1;
+      for(const item of normalized){
+        if(existingUrls.has(item.url)) continue;
+        item.order = order++;
+        list.push(item);
+      }
+    }
+
+    saveBookmarks(list);
+    renderBookmarks();
+    alert("导入完成");
   });
 
   const grid = document.getElementById("bookmarkGrid");
@@ -309,13 +668,15 @@ function bindBookmarkUI(){
     if(act === "edit"){
       e.preventDefault();
       e.stopPropagation();
-      const list = loadBookmarks() || [];
+      const list = loadBookmarks();
       const cur = list.find(x => x.id === id);
-      const nextName = prompt("输入书签名称：", cur?.name || "");
+      const nextName = prompt("书签名称", cur?.name || "");
       if(nextName === null) return;
+      const nextGroup = prompt("分组（可留空）", cur?.group || "");
+      if(nextGroup === null) return;
       const trimmed = nextName.trim();
       if(!trimmed) return;
-      updateBookmarkName(id, trimmed);
+      updateBookmark(id, { name: trimmed, group: nextGroup.trim() });
       return;
     }
     if(act === "del"){
@@ -325,7 +686,7 @@ function bindBookmarkUI(){
       return;
     }
 
-    const list = loadBookmarks() || [];
+    const list = loadBookmarks();
     const cur = list.find(x => x.id === id);
     if(cur?.url) window.open(cur.url, "_blank");
   });
@@ -335,9 +696,45 @@ function bindBookmarkUI(){
     if(!card) return;
     if(e.key !== "Enter") return;
     const id = card.getAttribute("data-id");
-    const list = loadBookmarks() || [];
+    const list = loadBookmarks();
     const cur = list.find(x => x.id === id);
     if(cur?.url) window.open(cur.url, "_blank");
+  });
+
+  let draggingId = null;
+
+  grid.addEventListener("dragstart", (e)=>{
+    const card = e.target.closest?.(".bmItem");
+    if(!card) return;
+    draggingId = card.getAttribute("data-id");
+    e.dataTransfer.setData("text/plain", draggingId);
+    e.dataTransfer.effectAllowed = "move";
+    card.classList.add("dragging");
+  });
+
+  grid.addEventListener("dragend", (e)=>{
+    const card = e.target.closest?.(".bmItem");
+    if(card) card.classList.remove("dragging");
+    draggingId = null;
+  });
+
+  grid.addEventListener("dragover", (e)=>{
+    const group = e.target.closest?.(".bmGroup");
+    if(!group) return;
+    e.preventDefault();
+  });
+
+  grid.addEventListener("drop", (e)=>{
+    const group = e.target.closest?.(".bmGroup");
+    if(!group) return;
+    e.preventDefault();
+    const dropGroup = group.getAttribute("data-group") || "";
+    const overCard = e.target.closest?.(".bmItem");
+    const dropId = overCard?.getAttribute("data-id") || null;
+    const dragId = e.dataTransfer.getData("text/plain") || draggingId;
+    if(!dragId) return;
+    if(dropId && dropId === dragId) return;
+    reorderBookmarks(dragId, dropId, dropGroup);
   });
 }
 
@@ -349,7 +746,7 @@ function fmtTime(iso){
 }
 
 function renderItems(items, fallbackText){
-  if(!items || items.length === 0) return `<div class="muted">${fallbackText}</div>`;
+  if(!items || items.length === 0) return `<div class="notice">${fallbackText}</div>`;
   return `<div class="list">${
     items.map(x => {
       const rawThumb = x.thumb || x.cover || "";
@@ -391,12 +788,12 @@ async function refreshLive(){
   const box = document.getElementById("liveCard");
 
   try{
-    badge.textContent = "⏳ 拉取中…";
+    badge.innerHTML = `<span class="dot"></span>拉取中…`;
     const r = await fetch(`/api/live?ts=${Date.now()}`, { cache: "no-store" });
     const data = await r.json();
 
     updatedAt.textContent = `更新：${fmtTime(data.updated_at)} · ${data.version || ""}`;
-    badge.textContent = "✅ 在线";
+    badge.innerHTML = `<span class="dot ok"></span>在线`;
 
     const liveBili = (data.bili || []).filter(x => x.live_status === 1);
     const liveYT   = (data.youtube || []).filter(x => x.eventType === "live");
@@ -407,10 +804,10 @@ async function refreshLive(){
       <h2>📺 开播监控</h2>
 
       <h3>🔴 正在直播（B站）</h3>
-      ${renderItems(liveBili, "暂无")}
+      ${renderItems(liveBili, "暂无直播")}
 
       <h3>🔴 正在直播（YouTube）</h3>
-      ${renderItems(liveYT, "暂无")}
+      ${renderItems(liveYT, "暂无直播")}
 
       <h3>⏳ 直播预告（YouTube）</h3>
       ${renderItems(upYT, "暂无")}
@@ -419,21 +816,167 @@ async function refreshLive(){
       ${renderItems(chatYT, "暂无")}
     `;
   }catch(e){
-    badge.textContent = "❌ 异常";
+    badge.innerHTML = `<span class="dot"></span>异常`;
     box.innerHTML = `
       <h2>📺 开播监控</h2>
-      <div class="muted">加载失败：${String(e)}</div>
-      <div class="muted">你可以打开 <a href="/api/live?ts=${Date.now()}" target="_blank">/api/live</a> 看详细报错。</div>
+      <div class="notice">加载失败：${String(e)}</div>
+      <div class="muted">你可以打开 <a href="/api/live?ts=${Date.now()}" target="_blank">/api/live</a> 查看详情</div>
     `;
   }
+}
+
+function formatCount(num){
+  if(num == null) return "";
+  const n = Number(num);
+  if(Number.isNaN(n)) return String(num);
+  if(n >= 1e8) return `${(n/1e8).toFixed(1)}亿`;
+  if(n >= 1e4) return `${(n/1e4).toFixed(1)}万`;
+  return String(n);
+}
+
+function renderHotList(items, type){
+  if(!items || !items.length) return `<div class="notice">暂无数据</div>`;
+  return items.slice(0, 20).map((x, i) => {
+    const title = escapeHtml(x.title || "未命名");
+    const url = x.url || "#";
+    const meta = type === "bili"
+      ? `${x.owner || ""} · 播放 ${formatCount(x.view)} · 👍 ${formatCount(x.like)}`
+      : `${x.hot || ""}`;
+    return `
+      <div class="hotItem">
+        <div class="hotIndex">${i + 1}</div>
+        <div>
+          <div class="hotTitle"><a href="${url}" target="_blank">${title}</a></div>
+          <div class="hotMeta">${escapeHtml(meta)}</div>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+async function refreshHot(){
+  const listEl = document.getElementById("hotList");
+  const updated = document.getElementById("hotUpdated");
+  try{
+    listEl.innerHTML = `<div class="notice">加载中…</div>`;
+    const r = await fetch(`/api/hot?ts=${Date.now()}`, { cache: "no-store" });
+    const data = await r.json();
+    updated.textContent = data.updated_at ? `更新：${fmtTime(data.updated_at)}` : "";
+
+    const tabs = document.querySelectorAll(".hotTabs button");
+    let active = Array.from(tabs).find(t => t.classList.contains("active"))?.dataset.tab || "bili";
+    const renderActive = () => {
+      const items = active === "zhihu" ? data.zhihu : data.bili;
+      listEl.innerHTML = renderHotList(items, active);
+    };
+
+    tabs.forEach(btn => {
+      btn.onclick = () => {
+        tabs.forEach(x => x.classList.remove("active"));
+        btn.classList.add("active");
+        active = btn.dataset.tab;
+        renderActive();
+      };
+    });
+
+    renderActive();
+  }catch(e){
+    listEl.innerHTML = `<div class="notice">加载失败：${String(e)}</div>`;
+  }
+}
+
+const weatherCodeMap = {
+  0: "晴朗",
+  1: "大部晴朗",
+  2: "局部多云",
+  3: "多云",
+  45: "雾",
+  48: "雾凇",
+  51: "毛毛雨",
+  53: "毛毛雨",
+  55: "毛毛雨",
+  61: "小雨",
+  63: "中雨",
+  65: "大雨",
+  71: "小雪",
+  73: "中雪",
+  75: "大雪",
+  80: "阵雨",
+  81: "阵雨",
+  82: "强阵雨",
+  95: "雷暴",
+  96: "雷暴伴冰雹",
+  99: "强雷暴"
+};
+
+function renderWeather(data){
+  if(!data) return `<div class="notice">暂无数据</div>`;
+  if(data.error) return `<div class="notice">${escapeHtml(data.error)}</div>`;
+  const code = data.code;
+  const desc = weatherCodeMap[code] || `天气代码 ${code}`;
+  return `
+    <div class="weatherMain">
+      <div class="weatherTemp">${data.temperature}°</div>
+      <div class="weatherInfo">
+        <div>${escapeHtml(data.city)} · ${desc}</div>
+        <div>风速 ${data.wind} km/h</div>
+        <div>时间 ${escapeHtml(fmtTime(data.time))}</div>
+      </div>
+    </div>
+  `;
+}
+
+async function refreshWeather(){
+  const cityInput = document.getElementById("weatherCity");
+  const city = cityInput.value.trim();
+  const body = document.getElementById("weatherBody");
+  const updated = document.getElementById("weatherUpdated");
+  if(!city){
+    body.innerHTML = `<div class="notice">尚未设置城市</div>`;
+    updated.textContent = "";
+    return;
+  }
+
+  try{
+    body.innerHTML = `<div class="notice">加载中…</div>`;
+    const r = await fetch(`/api/weather?city=${encodeURIComponent(city)}&ts=${Date.now()}`, { cache: "no-store" });
+    const data = await r.json();
+    body.innerHTML = renderWeather(data);
+    updated.textContent = data.updated_at ? `更新：${fmtTime(data.updated_at)}` : "";
+  }catch(e){
+    body.innerHTML = `<div class="notice">加载失败：${String(e)}</div>`;
+  }
+}
+
+function bindWeather(){
+  const input = document.getElementById("weatherCity");
+  const btn = document.getElementById("weatherBtn");
+  const saved = localStorage.getItem(WEATHER_KEY);
+  if(saved) input.value = saved;
+
+  const trigger = () => {
+    const city = input.value.trim();
+    if(city) localStorage.setItem(WEATHER_KEY, city);
+    refreshWeather();
+  };
+
+  btn.addEventListener("click", trigger);
+  input.addEventListener("keydown", (e)=>{ if(e.key === "Enter") trigger(); });
+
+  refreshWeather();
 }
 
 refreshLive();
 setInterval(refreshLive, 60_000);
 
+refreshHot();
+setInterval(refreshHot, 10 * 60_000);
+
 ensureDefaultBookmarks();
 renderBookmarks();
 bindBookmarkUI();
+
+bindWeather();
 </script>
 </body>
 </html>
