@@ -26,7 +26,7 @@ export async function onRequest() {
   const zhihuItems = zhihuResp.json?.data || [];
   const zhihu = zhihuItems.map((x) => {
     const targetUrl = x?.target?.url || "";
-    const qid = targetUrl.match(/questions?\\/(\\d+)/)?.[1] || "";
+    const qid = targetUrl.match(/questions?\/(\d+)/)?.[1] || "";
     return {
       title: x?.target?.title || null,
       url: qid ? `https://www.zhihu.com/question/${qid}` : targetUrl || null,
